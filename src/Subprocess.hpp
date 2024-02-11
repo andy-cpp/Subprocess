@@ -10,6 +10,11 @@ public:
         int Stdout[2];
         int Stderr[2];
     };
+    void Write(std::string const& data);
+
+    std::string Read();
+
+    std::string ReadStderr();
 
     Pipes const& GetPipes() const { return m_Pipes; }
 

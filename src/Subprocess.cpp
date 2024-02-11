@@ -19,11 +19,33 @@ void InitializeChildPipes(Subprocess::Pipes& pipes)
     dup2(pipes.Stderr[1], STDERR_FILENO);
 }
 
-void InitializeParentPipes(Subprocess::Pipes& pipes)
+static std::string ReadFromFD(int fd)
 {
-    close(pipes.Stdin[0]);
-    close(pipes.Stdout[1]);
-    close(pipes.Stderr[1]);
+    std::string data;
+    while(true)
+    {
+        char buffer[1024] = {0};
+        int nBytes = read(fd, buffer, sizeof(buffer));
+        if(nBytes <= 0) break;
+        data.append(buffer, nBytes);
+        if(nBytes < sizeof(buffer)) break;
+    }
+    return data;
+}
+
+void Subprocess::Write(std::string const& data)
+{
+    write(m_Pipes.Stdin[1], data.c_str(), data.size());
+}
+
+std::string Subprocess::Read()
+{
+    return ReadFromFD(m_Pipes.Stdout[0]);
+}
+
+std::string Subprocess::ReadStderr()
+{
+    return ReadFromFD(m_Pipes.Stderr[0]);
 }
 
 void Subprocess::Subprocess::Exec(char const* path)
