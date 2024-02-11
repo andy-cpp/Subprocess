@@ -27,6 +27,10 @@ public:
         InheritEnv = 1 << 1,
     };
 
+    size_t GetFlags() const { return m_Flags; }
+
+    void SetFlags(size_t flags) { m_Flags = flags; }
+
     void Exec(char const* path, std::vector<std::string> const& argv = {}, std::unordered_map<std::string, std::string> = {});
 
 private:
@@ -37,5 +41,5 @@ private:
 private:
     pid_t m_Pid = 0;
     Pipes m_Pipes = {};
-    int m_Flags = Flags::CombineOutput | Flags::InheritEnv;
+    size_t m_Flags = Flags::CombineOutput | Flags::InheritEnv;
 };
