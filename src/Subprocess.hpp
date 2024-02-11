@@ -1,5 +1,7 @@
 #pragma once
-
+#include <string>
+#include <vector>
+#include <unordered_map>
 class Subprocess
 {
 public:
@@ -18,14 +20,22 @@ public:
 
     Pipes const& GetPipes() const { return m_Pipes; }
 
-    enum class Flags{
+    enum Flags{
         // Combines stdout and stderr, useful to read all information in chronological order.
-        COMBINE_OUTPUT = 1 << 0
+        CombineOutput = 1 << 0,
+        // Inherits parent process env, other env variables will overwrite parent env variables
+        InheritEnv = 1 << 1,
     };
 
-    void Exec(char const* path);
+    void Exec(char const* path, std::vector<std::string> const& argv = {}, std::unordered_map<std::string, std::string> = {});
 
 private:
+    void InitializeChildPipes();
+
+    void InitializeParentPipes();
+
+private:
+    pid_t m_Pid = 0;
     Pipes m_Pipes = {};
-    Flags m_Flags = Flags::COMBINE_OUTPUT;
+    int m_Flags = Flags::CombineOutput | Flags::InheritEnv;
 };
