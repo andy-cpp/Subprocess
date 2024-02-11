@@ -25,6 +25,14 @@ void Subprocess::InitializeParentPipes()
     close(m_Pipes.Stderr[1]);
 }
 
+Subprocess::~Subprocess()
+{
+    /* Close remaining open pipes */
+    close(m_Pipes.Stdin[1]);
+    close(m_Pipes.Stdout[0]);
+    close(m_Pipes.Stderr[0]);
+}
+
 static std::string ReadFromFD(int fd)
 {
     std::string data;

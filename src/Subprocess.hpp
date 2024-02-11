@@ -7,6 +7,8 @@ class Subprocess
 public:
     Subprocess() = default;
 
+    ~Subprocess();
+
     struct Pipes{
         int Stdin[2];
         int Stdout[2];
