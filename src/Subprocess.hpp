@@ -9,16 +9,22 @@ public:
 
     ~Subprocess();
 
+    /*
+        Type used for timeouts, values should be in milliseconds.
+    */
+    typedef size_t ms_t;
     struct Pipes{
         int Stdin[2];
         int Stdout[2];
         int Stderr[2];
+
+        void Print() const;
     };
     void Write(std::string const& data);
 
-    std::string Read();
+    std::string Read(ms_t timeout = 0);
 
-    std::string ReadStderr();
+    std::string ReadStderr(ms_t timeout = 0);
 
     Pipes const& GetPipes() const { return m_Pipes; }
 

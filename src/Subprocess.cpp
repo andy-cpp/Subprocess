@@ -33,8 +33,24 @@ Subprocess::~Subprocess()
     close(m_Pipes.Stderr[0]);
 }
 
-static std::string ReadFromFD(int fd)
+bool HasData(int fd, size_t usec)
 {
+    fd_set fset;
+    FD_ZERO(&fset);
+    FD_SET(fd, &fset);
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = usec;
+    int ret = select(fd + 1, &fset, 0,0, &timeout);
+    return ret > 0;
+}
+
+static std::string ReadFromFD(int fd, size_t timeout = 0)
+{
+    if(timeout > 0 && !HasData(fd, timeout * 1000))
+    {
+        return std::string(); // Timed out
+    }
     std::string data;
     while(true)
     {
@@ -47,19 +63,20 @@ static std::string ReadFromFD(int fd)
     return data;
 }
 
+
 void Subprocess::Write(std::string const& data)
 {
     write(m_Pipes.Stdin[1], data.c_str(), data.size());
 }
 
-std::string Subprocess::Read()
+std::string Subprocess::Read(ms_t timeoutms)
 {
-    return ReadFromFD(m_Pipes.Stdout[0]);
+    return ReadFromFD(m_Pipes.Stdout[0], timeoutms);
 }
 
-std::string Subprocess::ReadStderr()
+std::string Subprocess::ReadStderr(ms_t timeoutms)
 {
-    return ReadFromFD(m_Pipes.Stderr[0]);
+    return ReadFromFD(m_Pipes.Stderr[0], timeoutms);
 }
 
 std::unordered_map<std::string, std::string> GetEnv()
