@@ -127,6 +127,7 @@ void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> con
     if(pid == 0)
     {
         InitializeChildPipes();
+        closefrom(3);
 
         std::vector<char*> arguments;
         arguments.push_back(strdup(path));
