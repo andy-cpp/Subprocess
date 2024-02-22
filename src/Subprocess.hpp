@@ -18,6 +18,8 @@ public:
         int Stdout[2];
         int Stderr[2];
 
+        void Close();
+
         void Print() const;
     };
     void Write(std::string const& data);
@@ -26,7 +28,7 @@ public:
 
     std::string ReadStderr(ms_t timeout = 0);
 
-    Pipes const& GetPipes() const { return m_Pipes; }
+    Pipes& GetPipes() { return m_Pipes; }
 
     enum Flags{
         // Combines stdout and stderr, useful to read all information in chronological order.

@@ -6,6 +6,25 @@
 #include <sys/wait.h>
 #include <string.h>
 
+void Subprocess::Pipes::Print() const
+{
+    printf("Stdin  read (%d) write (%d)\n", Stdin[0], Stdin[1]);
+    printf("Stdout read (%d) write (%d)\n", Stdout[0], Stdout[1]);
+    printf("Stderr read (%d) write (%d)\n", Stderr[0], Stderr[1]);
+}
+
+void Subprocess::Pipes::Close()
+{
+    close(Stdin[0]);
+    close(Stdin[1]);
+
+    close(Stdout[0]);
+    close(Stdout[1]);
+
+    close(Stderr[0]);
+    close(Stderr[1]);
+}
+
 void Subprocess::InitializeChildPipes()
 {
     close(m_Pipes.Stdin[1]);
@@ -95,6 +114,11 @@ std::unordered_map<std::string, std::string> GetEnv()
 
 void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> const& argv, std::unordered_map<std::string, std::string> env)
 {
+    /*
+        Close any possibly existing pipes that might already exist.
+    */
+    m_Pipes.Close();
+
     pipe(m_Pipes.Stdin);
     pipe(m_Pipes.Stdout);
     pipe(m_Pipes.Stderr);
@@ -124,7 +148,8 @@ void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> con
         }
         environment.push_back(0);
 
-        execvpe(path, arguments.data(), environment.data());
+        int status = execvpe(path, arguments.data(), environment.data());
+        printf("execvpe error %d\n", errno);
 
         exit(0);
     }
