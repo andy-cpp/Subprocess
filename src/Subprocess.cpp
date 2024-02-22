@@ -98,6 +98,19 @@ std::string Subprocess::ReadStderr(ms_t timeoutms)
     return ReadFromFD(m_Pipes.Stderr[0], timeoutms);
 }
 
+bool Subprocess::IsRunning() const
+{
+    int s = 0;
+    pid_t pid = waitpid(m_Pid, &s, WNOHANG);
+    return pid == 0;
+}
+
+void Subprocess::Wait()
+{
+    int s = 0;
+    waitpid(m_Pid, &s, 0);
+}
+
 std::unordered_map<std::string, std::string> GetEnv()
 {
     std::unordered_map<std::string, std::string> env;

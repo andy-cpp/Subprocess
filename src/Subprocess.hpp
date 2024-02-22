@@ -41,7 +41,13 @@ public:
 
     void SetFlags(size_t flags) { m_Flags = flags; }
 
-    void Exec(char const* path, std::vector<std::string> const& argv = {}, std::unordered_map<std::string, std::string> = {});
+    pid_t GetPID() const { return m_Pid; }
+
+    bool IsRunning() const;
+
+    void Wait();
+
+    void Exec(char const* path, std::vector<std::string> const& argv = {}, std::unordered_map<std::string, std::string> env = {});
 
 private:
     void InitializeChildPipes();
