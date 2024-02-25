@@ -43,6 +43,8 @@ public:
 
     pid_t GetPID() const { return m_Pid; }
 
+    int GetExitCode() const;
+
     bool IsRunning() const;
 
     void Wait();

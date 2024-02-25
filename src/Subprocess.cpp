@@ -1,4 +1,4 @@
-#include "Subprocess.hpp"
+#include <Subprocess/Subprocess.hpp>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -98,6 +98,13 @@ std::string Subprocess::ReadStderr(ms_t timeoutms)
     return ReadFromFD(m_Pipes.Stderr[0], timeoutms);
 }
 
+int Subprocess::GetExitCode() const
+{
+    int s = 0;
+    pid_t pid = waitpid(m_Pid, &s, WNOHANG);
+    return WEXITSTATUS(s);
+}
+
 bool Subprocess::IsRunning() const
 {
     int s = 0;
@@ -163,9 +170,9 @@ void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> con
         environment.push_back(0);
 
         int status = execvpe(path, arguments.data(), environment.data());
-        printf("execvpe error %d\n", errno);
+        printf("execvpe error %s\n", strerror(errno));
 
-        exit(0);
+        exit(errno);
     }
     else {
         m_Pid = pid;
