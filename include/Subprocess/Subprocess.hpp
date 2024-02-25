@@ -7,6 +7,10 @@ class Subprocess
 public:
     Subprocess() = default;
 
+    Subprocess(const Subprocess&) = delete;
+
+    Subprocess& operator=(const Subprocess&) = delete;
+
     ~Subprocess();
 
     /*
