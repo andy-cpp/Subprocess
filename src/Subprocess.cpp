@@ -13,6 +13,14 @@ void Subprocess::Pipes::Print() const
     printf("Stderr read (%d) write (%d)\n", Stderr[0], Stderr[1]);
 }
 
+static struct timeval CreateTimevalFromMS(uint32_t ms)
+{
+    struct timeval t;
+    t.tv_sec = ms / 1000;
+    t.tv_usec = (ms % 1000) * 1000;
+    return t;
+}
+
 static void CloseFD(int& fd)
 {
     if(fd > 0){
@@ -63,21 +71,19 @@ Subprocess::~Subprocess()
     CloseFD(m_Pipes.Stderr[0]);
 }
 
-bool HasData(int fd, size_t usec)
+bool HasData(int fd, Subprocess::ms_t ms)
 {
     fd_set fset;
     FD_ZERO(&fset);
     FD_SET(fd, &fset);
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = usec;
+    struct timeval timeout = CreateTimevalFromMS(ms);
     int ret = select(fd + 1, &fset, 0,0, &timeout);
     return ret > 0;
 }
 
-static std::string ReadFromFD(int fd, size_t timeout = 0)
+static std::string ReadFromFD(int fd, Subprocess::ms_t timeout = 0)
 {
-    if(timeout > 0 && !HasData(fd, timeout * 1000))
+    if(timeout > 0 && !HasData(fd, timeout))
     {
         return std::string(); // Timed out
     }
