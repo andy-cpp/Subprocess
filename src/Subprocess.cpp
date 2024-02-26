@@ -132,12 +132,14 @@ std::unordered_map<std::string, std::string> GetEnv()
     return env;
 }
 
-void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> const& argv, std::unordered_map<std::string, std::string> env)
+bool Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> const& argv, std::unordered_map<std::string, std::string> env)
 {
     /*
         Close any possibly existing pipes that might already exist.
     */
     m_Pipes.Close();
+
+    m_Pid = 0;
 
     pipe(m_Pipes.Stdin);
     pipe(m_Pipes.Stdout);
