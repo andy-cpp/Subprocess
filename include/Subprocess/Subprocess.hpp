@@ -18,9 +18,9 @@ public:
     */
     typedef size_t ms_t;
     struct Pipes{
-        int Stdin[2];
-        int Stdout[2];
-        int Stderr[2];
+        int Stdin[2]  = {-1, -1};
+        int Stdout[2] = {-1, -1};
+        int Stderr[2] = {-1, -1};
 
         void Close();
 

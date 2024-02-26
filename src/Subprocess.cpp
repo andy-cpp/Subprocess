@@ -17,7 +17,7 @@ static void CloseFD(int& fd)
 {
     if(fd > 0){
         close(fd);
-        fd = 0;
+        fd = -1;
     }
 }
 
