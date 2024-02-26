@@ -13,43 +13,54 @@ void Subprocess::Pipes::Print() const
     printf("Stderr read (%d) write (%d)\n", Stderr[0], Stderr[1]);
 }
 
+static void CloseFD(int& fd)
+{
+    if(fd > 0){
+        close(fd);
+        fd = 0;
+    }
+}
+
 void Subprocess::Pipes::Close()
 {
-    close(Stdin[0]);
-    close(Stdin[1]);
+    CloseFD(Stdin[0]);
+    CloseFD(Stdin[1]);
 
-    close(Stdout[0]);
-    close(Stdout[1]);
+    CloseFD(Stdout[0]);
+    CloseFD(Stdout[1]);
 
-    close(Stderr[0]);
-    close(Stderr[1]);
+    CloseFD(Stderr[0]);
+    CloseFD(Stderr[1]);
 }
 
 void Subprocess::InitializeChildPipes()
 {
-    close(m_Pipes.Stdin[1]);
+    CloseFD(m_Pipes.Stdin[1]);
     dup2(m_Pipes.Stdin[0], STDIN_FILENO);
 
-    close(m_Pipes.Stdout[0]);
+    CloseFD(m_Pipes.Stdout[0]);
     dup2(m_Pipes.Stdout[1], STDOUT_FILENO);
 
-    close(m_Pipes.Stderr[0]);
+    CloseFD(m_Pipes.Stderr[0]);
     dup2((m_Flags & Flags::CombineOutput) ? m_Pipes.Stdout[1] : m_Pipes.Stderr[1], STDERR_FILENO);
 }
 
 void Subprocess::InitializeParentPipes()
 {
-    close(m_Pipes.Stdin[0]);
-    close(m_Pipes.Stdout[1]);
-    close(m_Pipes.Stderr[1]);
+    /*
+        Close child end of pipes
+    */
+    CloseFD(m_Pipes.Stdin[0]);
+    CloseFD(m_Pipes.Stdout[1]);
+    CloseFD(m_Pipes.Stderr[1]);
 }
 
 Subprocess::~Subprocess()
 {
     /* Close remaining open pipes */
-    close(m_Pipes.Stdin[1]);
-    close(m_Pipes.Stdout[0]);
-    close(m_Pipes.Stderr[0]);
+    CloseFD(m_Pipes.Stdin[1]);
+    CloseFD(m_Pipes.Stdout[0]);
+    CloseFD(m_Pipes.Stderr[0]);
 }
 
 bool HasData(int fd, size_t usec)
