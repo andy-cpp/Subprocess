@@ -158,9 +158,10 @@ bool Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> con
 
     m_Pid = 0;
 
-    pipe(m_Pipes.Stdin);
-    pipe(m_Pipes.Stdout);
-    pipe(m_Pipes.Stderr);
+    if(pipe(m_Pipes.Stdin)  != 0 ||
+       pipe(m_Pipes.Stdout) != 0 ||
+       pipe(m_Pipes.Stderr) != 0
+    ) return false;
 
     int pid = fork();
     if(pid == 0)
