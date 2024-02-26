@@ -174,8 +174,9 @@ void Subprocess::Subprocess::Exec(char const* path, std::vector<std::string> con
 
         exit(errno);
     }
-    else {
+    else if(pid > 0) {
         m_Pid = pid;
         InitializeParentPipes();
     }
+    return pid > 0;
 }
